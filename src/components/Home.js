@@ -7,13 +7,8 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (walletAddress) {
-      if (isRegistrar) {
-        navigate('/registrar-dashboard');
-      } else {
-        navigate('/user-dashboard');
-      }
-    }
+    if (!walletAddress) return;
+    navigate(isRegistrar ? '/registrar-dashboard' : '/user-dashboard');
   }, [walletAddress, isRegistrar, navigate]);
 
   return (
