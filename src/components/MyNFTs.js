@@ -81,29 +81,35 @@ const MyNFTs = () => {
             const formattedNFTs = await Promise.all(
                 tokenURIs.map(async (uri, index) => {
                     try {
-                        const pinataURI = uri.replace(
-                            "ipfs://",
-                            "https://gateway.pinata.cloud/ipfs/"
-                        );
+                        const pinataURI = uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/");
                         const response = await fetch(pinataURI);
+
+                        if (!response.ok) throw new Error(`Failed to fetch metadata: ${response.statusText}`);
+
                         const metadata = await response.json();
 
                         return {
-                            id: tokenIds[index].toString(), // Token ID
-                            name: metadata.name,
-                            description: metadata.description,
-                            image: metadata.image.replace(
-                                "ipfs://",
-                                "https://gateway.pinata.cloud/ipfs/"
-                            ),
-                            attributes: metadata.attributes || [], // Attributes
+                            id: tokenIds[index].toString(),
+                            name: metadata.name || `NFT #${tokenIds[index]}`,
+                            description: metadata.description || "No description available.",
+                            image: metadata.image
+                                ? metadata.image.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
+                                : "https://via.placeholder.com/300", // Fallback image
+                            attributes: metadata.attributes || [],
                         };
                     } catch (err) {
-                        console.error("Failed to parse NFT metadata:", err);
-                        return null;
+                        console.error(`Error fetching metadata for token ${tokenIds[index]}:`, err);
+                        return {
+                            id: tokenIds[index].toString(),
+                            name: `NFT #${tokenIds[index]}`,
+                            description: "Metadata not available.",
+                            image: "https://via.placeholder.com/300",
+                            attributes: [],
+                        };
                     }
                 })
             );
+
 
             // Filter out invalid NFTs
             setNFTs(formattedNFTs.filter((nft) => nft !== null));
