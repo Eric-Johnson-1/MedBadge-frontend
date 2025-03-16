@@ -61,11 +61,6 @@ const MyNFTs = () => {
 
     // Fetch NFTs from the contract
     const fetchNFTs = async () => {
-        if (!walletAddress) {
-            setError("Please connect your wallet to view NFTs.");
-            return;
-        }
-
         setLoading(true);
         setError(null);
 
@@ -74,17 +69,14 @@ const MyNFTs = () => {
             const signer = provider.getSigner();
             const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
 
-            // Fetch NFT data from the contract
             const [tokenIds, tokenURIs] = await contract.getMyNFTs();
 
-            // Parse NFT metadata
             const formattedNFTs = await Promise.all(
                 tokenURIs.map(async (uri, index) => {
                     try {
-                        const pinataURI = uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/");
-                        const response = await fetch(pinataURI);
-
-                        if (!response.ok) throw new Error(`Failed to fetch metadata: ${response.statusText}`);
+                        const metadataUrl = uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/");
+                        const response = await fetch(metadataUrl);
+                        if (!response.ok) throw new Error("Failed to fetch metadata");
 
                         const metadata = await response.json();
 
@@ -94,25 +86,21 @@ const MyNFTs = () => {
                             description: metadata.description || "No description available.",
                             image: metadata.image
                                 ? metadata.image.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
-                                : "https://via.placeholder.com/300", // Fallback image
+                                : "https://via.placeholder.com/300",
                             attributes: metadata.attributes || [],
                         };
                     } catch (err) {
                         console.error(`Error fetching metadata for token ${tokenIds[index]}:`, err);
-                        return {
-                            id: tokenIds[index].toString(),
-                            name: `NFT #${tokenIds[index]}`,
-                            description: "Metadata not available.",
-                            image: "https://via.placeholder.com/300",
-                            attributes: [],
-                        };
+                        return null;
                     }
                 })
             );
 
-
-            // Filter out invalid NFTs
-            setNFTs(formattedNFTs.filter((nft) => nft !== null));
+            // Update state only if the data has actually changed to prevent unnecessary re-renders
+            const validNFTs = formattedNFTs.filter((nft) => nft !== null);
+            if (JSON.stringify(validNFTs) !== JSON.stringify(nfts)) {
+                setNFTs(validNFTs);
+            }
         } catch (err) {
             console.error("Failed to fetch NFTs:", err);
             setError("Failed to load your NFTs. Please try again later.");
@@ -122,6 +110,7 @@ const MyNFTs = () => {
     };
 
     useEffect(() => {
+        if (!walletAddress) return; // Prevent unnecessary requests if wallet address is empty
         fetchNFTs();
     }, [walletAddress]);
 
