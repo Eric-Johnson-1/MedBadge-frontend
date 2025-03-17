@@ -7,14 +7,12 @@ import { useWalletContext } from "../contexts/WalletContext";
 const NFTCard = ({ nft }) => {
     return (
         <div className="bg-blue-500 border border-blue-600 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 overflow-hidden flex flex-col">
-            {/* Image Section with Lazy Loading */}
+            {/* Image Section */}
             <div className="relative">
                 <img
-                    src={nft.image || "https://via.placeholder.com/300"}
+                    src={nft.image || "https://via.placeholder.com/300"} // Fallback image if no URL is provided
                     alt={nft.name || "NFT"}
-                    className="w-full h-48 object-cover blur-sm transition-all duration-500 ease-in-out"
-                    loading="lazy"
-                    onLoad={(e) => e.target.classList.remove("blur-sm")}
+                    className="w-full h-48 object-cover"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
             </div>
