@@ -16,6 +16,11 @@ const NFTCard = ({ nft }) => {
           className="w-full h-48 object-cover blur-sm transition-all duration-500 ease-in-out"
           loading="lazy"
           onLoad={(e) => e.target.classList.remove("blur-sm")}
+          onError={(e) => {
+            e.target.classList.remove("blur-sm");
+            e.target.src =
+              "https://via.placeholder.com/300?text=Image+Not+Found";
+          }}
         />
         <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
       </div>
