@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { ethers } from "ethers";
 import { CONTRACT_ADDRESS, ABI } from "../contracts/contractConfig";
 import { useWalletContext } from "../contexts/WalletContext";
@@ -68,7 +68,7 @@ const MyNFTs = () => {
   const [error, setError] = useState(null); // Error state
 
   // Fetch NFTs from the contract
-  const fetchNFTs = async () => {
+  const fetchNFTs = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -124,12 +124,12 @@ const MyNFTs = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [nfts]);
 
   useEffect(() => {
     if (!walletAddress) return; // Prevent unnecessary requests if wallet address is empty
     fetchNFTs();
-  }, [walletAddress]);
+  }, [walletAddress, fetchNFTs]);
 
   return (
     <div className="min-h-screen bg-blue-600 text-white p-8">
