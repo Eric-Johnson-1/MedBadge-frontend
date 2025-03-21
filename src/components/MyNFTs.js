@@ -137,14 +137,29 @@ const MyNFTs = () => {
         My NFT Collection
       </h2>
 
+      {/* Wallet Not Connected State */}
+      {!walletAddress && (
+        <div className="text-center p-8 bg-blue-700 rounded-lg max-w-2xl mx-auto shadow-lg">
+          <h3 className="text-2xl font-semibold mb-4">Connect Your Wallet</h3>
+          <p className="mb-6">
+            Please connect your wallet to view your NFT collection.
+          </p>
+          <button className="px-6 py-3 bg-green-500 hover:bg-green-600 rounded-lg font-bold transition-colors duration-300">
+            Connect Wallet
+          </button>
+        </div>
+      )}
+
       {/* Loading State */}
-      {loading && <p className="text-center">Loading your NFTs...</p>}
+      {loading && walletAddress && (
+        <p className="text-center">Loading your NFTs...</p>
+      )}
 
       {/* Error State */}
       {error && <p className="text-red-400 text-center">{error}</p>}
 
       {/* NFT List */}
-      {!loading && nfts.length > 0 && (
+      {!loading && walletAddress && nfts.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {nfts.map((nft) => (
             <NFTCard key={nft.id} nft={nft} />
@@ -153,7 +168,7 @@ const MyNFTs = () => {
       )}
 
       {/* No NFTs */}
-      {!loading && nfts.length === 0 && !error && (
+      {!loading && walletAddress && nfts.length === 0 && !error && (
         <p className="text-center text-gray-200">You don't own any NFTs.</p>
       )}
     </div>
